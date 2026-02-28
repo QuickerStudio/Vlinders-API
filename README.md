@@ -1,14 +1,147 @@
 # Vlinders API
 
-**独立的服务端 API 仓库 - 为 Vlinder Chat VSCode 扩展提供 AI 服务**
+**生产级AI API服务器 - Copilot API兼容**
 
-> ⚠️ **重要说明**: 这个文件夹仅作为占位符和文档参考。实际的 Vlinders API 服务端代码应该在独立的 Git 仓库中开发和部署。
+基于Cloudflare Workers + Hono构建的高性能、全球分布式AI API服务。
 
 ---
 
-## 📋 项目概述
+## 🎯 项目状态
 
-### 仓库关系
+**当前阶段**: Phase 7 - 测试和文档 ✅
+
+**已完成**:
+- ✅ Phase 1: 基础架构（项目结构、TypeScript、Wrangler配置）
+- ✅ Phase 2: 认证系统（JWT、用户注册/登录、会话管理）
+- ✅ Phase 3: 数据库和存储（D1迁移、KV缓存、R2图片存储）
+- ✅ Phase 4: 核心业务逻辑（蝴蝶管理、观察记录、图片上传）
+- ✅ Phase 5: 中间件和安全（速率限制、CORS、错误处理、请求ID）
+- ✅ Phase 6: 监控和日志（R2日志存储、遥测服务）
+- ✅ Phase 7: 测试和文档（单元测试、集成测试、API文档、部署文档）
+
+**项目已完成**: 生产就绪 🚀
+
+---
+
+## 🚀 快速开始
+
+### 前置要求
+
+- Node.js >= 18
+- npm >= 9
+- Cloudflare账号（用于部署）
+
+### 安装依赖
+
+```bash
+npm install
+```
+
+### 本地开发
+
+```bash
+npm run dev
+```
+
+服务将在 `http://localhost:8787` 启动。
+
+### 运行测试
+
+```bash
+# 运行所有测试
+npm test
+
+# 运行单元测试
+npm run test:unit
+
+# 运行集成测试
+npm run test:integration
+
+# 测试覆盖率
+npm run test:coverage
+```
+
+### 测试API端点
+
+```bash
+# 健康检查
+curl http://localhost:8787/health
+
+# 用户注册
+curl -X POST http://localhost:8787/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"SecurePass123!","name":"John Doe"}'
+
+# 用户登录
+curl -X POST http://localhost:8787/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"SecurePass123!"}'
+
+# 获取蝴蝶列表
+curl http://localhost:8787/butterflies
+
+# 获取当前用户信息（需要认证）
+curl http://localhost:8787/users/me \
+  -H "Authorization: Bearer <your-token>"
+```
+
+---
+
+## 📋 API端点
+
+完整的API文档请查看 [docs/API.md](docs/API.md)
+
+### 健康检查
+
+```http
+GET  /health              # 健康检查
+GET  /health/ready        # 就绪检查
+GET  /health/live         # 存活检查
+```
+
+### 认证
+
+```http
+POST /auth/register       # 用户注册
+POST /auth/login          # 用户登录
+POST /auth/refresh        # 刷新Token
+POST /auth/logout         # 登出
+```
+
+### 用户管理
+
+```http
+GET    /users/me          # 获取当前用户信息
+PATCH  /users/me          # 更新用户信息
+DELETE /users/me          # 删除用户账号
+```
+
+### 蝴蝶管理
+
+```http
+GET    /butterflies       # 获取蝴蝶列表（支持分页和搜索）
+GET    /butterflies/:id   # 获取蝴蝶详情
+POST   /butterflies       # 创建蝴蝶（管理员）
+PATCH  /butterflies/:id   # 更新蝴蝶（管理员）
+DELETE /butterflies/:id   # 删除蝴蝶（管理员）
+```
+
+### 观察记录
+
+```http
+GET    /observations      # 获取观察记录列表
+GET    /observations/:id  # 获取观察记录详情
+POST   /observations      # 创建观察记录
+DELETE /observations/:id  # 删除观察记录
+```
+
+### 图片上传
+
+```http
+POST   /upload            # 上传图片到R2存储
+```
+
+---
 
 ```
 ┌─────────────────────────────────────────┐
@@ -630,6 +763,53 @@ export class VlindersAPIClient {
 - 遵循 ESLint 规则
 - 编写单元测试
 - 更新文档
+
+### 测试要求
+
+- 所有新功能必须包含单元测试
+- 集成测试覆盖关键业务流程
+- 测试覆盖率保持在80%以上
+
+---
+
+## 📚 文档
+
+- [API文档](docs/API.md) - 完整的API端点文档
+- [部署指南](docs/DEPLOYMENT.md) - 部署到Cloudflare Workers的详细步骤
+- [实现计划](IMPLEMENTATION.md) - 项目实现的详细计划和进度
+
+---
+
+## 🏗️ 技术栈
+
+- **运行时**: Cloudflare Workers
+- **框架**: Hono (轻量级边缘计算框架)
+- **语言**: TypeScript
+- **数据库**: Cloudflare D1 (SQLite)
+- **缓存**: Cloudflare KV
+- **存储**: Cloudflare R2
+- **认证**: JWT
+- **测试**: Vitest
+
+---
+
+## 🔒 安全特性
+
+- JWT认证和授权
+- 速率限制（防止滥用）
+- CORS配置
+- 数据脱敏（日志中的敏感信息）
+- 输入验证
+- 错误处理和日志记录
+
+---
+
+## 📊 监控和日志
+
+- 请求日志存储在R2
+- 遥测数据存储在KV
+- 健康检查端点
+- 错误追踪和性能监控
 
 ---
 

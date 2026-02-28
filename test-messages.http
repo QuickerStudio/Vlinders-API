@@ -1,0 +1,88 @@
+### Test Anthropic Messages API - Non-streaming
+POST http://localhost:8787/v1/messages
+Content-Type: application/json
+Authorization: Bearer test-key
+
+{
+  "model": "claude-3-5-sonnet-20241022",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Hello! What is 2+2?"
+    }
+  ],
+  "max_tokens": 1024,
+  "temperature": 0.7
+}
+
+### Test Anthropic Messages API - Streaming
+POST http://localhost:8787/v1/messages
+Content-Type: application/json
+Authorization: Bearer test-key
+
+{
+  "model": "claude-3-5-sonnet-20241022",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Count from 1 to 5"
+    }
+  ],
+  "max_tokens": 1024,
+  "stream": true
+}
+
+### Test with Thinking (Extended Thinking)
+POST http://localhost:8787/v1/messages
+Content-Type: application/json
+Authorization: Bearer test-key
+
+{
+  "model": "claude-3-5-sonnet-20241022",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Solve this problem: If a train travels 120 km in 2 hours, what is its average speed?"
+    }
+  ],
+  "max_tokens": 2048,
+  "thinking": {
+    "type": "enabled",
+    "budget_tokens": 1024
+  }
+}
+
+### Test with Tools
+POST http://localhost:8787/v1/messages
+Content-Type: application/json
+Authorization: Bearer test-key
+
+{
+  "model": "claude-3-5-sonnet-20241022",
+  "messages": [
+    {
+      "role": "user",
+      "content": "What's the weather like in San Francisco?"
+    }
+  ],
+  "max_tokens": 1024,
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "get_weather",
+        "description": "Get the current weather for a location",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "location": {
+              "type": "string",
+              "description": "The city and state, e.g. San Francisco, CA"
+            }
+          },
+          "required": ["location"]
+        }
+      }
+    }
+  ]
+}
